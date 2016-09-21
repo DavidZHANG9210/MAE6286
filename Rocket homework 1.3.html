@@ -1,0 +1,88 @@
+
+# coding: utf-8
+
+# In[205]:
+
+import numpy
+
+
+# In[ ]:
+
+
+
+
+# In[206]:
+
+ms=50.0         #unit kg weight of the rocket shell
+g = 9.81      # gravity in m s^{-2}
+p=1.091       #average air density constant throughout flight in kg/m^3
+r=0.5
+A=numpy.pi*(r**2)      #maxium cross sectional area of the rocket 
+ve=325.0        #exhaust speed in m/s
+Cd=0.15       #drag coefficient
+mp0=100.0       #initial weight of the rocket propellant in kg
+mpc=20.0        # mass flow rate in kg/s
+mpv=20
+#set initial conditions:
+v0=0.0    #start at stationary condition
+h0=0.0    #launch from the ground
+t0=0.0     #initial launching time
+v=v0
+
+
+# In[207]:
+
+def f(u):
+    h=u[0]
+    v=u[1]
+    t=u[2]
+    return numpy.array([v, 
+                        -g+(mpv*ve)/(ms+mp)-p*v*numpy.abs(v)*A*Cd/(2*(ms+mp)), 
+                        1])
+
+
+# In[208]:
+
+
+T=20.0#final time
+dt=0.1                #time increment
+N=int(T/dt)+1         #number of time-steps
+#initialize the array containing the soluton for each time-step
+u=numpy.empty((N, 3))
+u[0]=numpy.array([h0, v0, t0])   #fill 1st element with initial values
+
+def euler_step(u, f, dt):
+    return u+dt*f(u)
+
+#time loop- Euler method
+for n in range(N-1):
+    if(n>=50):
+        mp=0
+        mpv=0
+    else:
+        mp=100-2*n
+    u[n+1]= euler_step(u[n], f, dt)
+
+
+# In[209]:
+
+u
+
+
+# In[210]:
+
+plt.figure()
+plt.plot(u[:,0],u[:,2],label="$H-T$",color="red",linewidth=2)
+plt.plot(u[:,1],u[:,2],"b--",label="$V-T$")
+plt.xlabel("Time(s)")
+plt.ylabel("Volt&H")
+plt.title("Rocket Example")
+plt.xlim(0,5000)
+plt.legend()
+plt.show()
+
+
+# In[ ]:
+
+
+
